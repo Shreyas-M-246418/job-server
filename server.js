@@ -146,7 +146,7 @@ async function updateGitHubFile(filePath, content) {
       auth: GITHUB_ACCESS_TOKEN
     });
 
-    // Get the current SHA of the file
+    // Get the current contents of the file
     const response = await octokit.repos.getContent({
       owner: GITHUB_OWNER,
       repo: GITHUB_REPO,
@@ -154,7 +154,7 @@ async function updateGitHubFile(filePath, content) {
     });
 
     // Update the file content
-    await octokit.repos.createOrUpdateFile({
+    await octokit.repos.createOrUpdateFileContents({
       owner: GITHUB_OWNER,
       repo: GITHUB_REPO,
       path: filePath,

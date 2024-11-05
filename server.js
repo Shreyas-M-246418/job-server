@@ -182,40 +182,41 @@ app.get('/api/jobs', async (req, res) => {
 });
 
 app.post('/api/jobs', async (req, res) => {
+  try {
+    const { title, description, location, salary } = req.body;
+    console.log('Incoming job data:', { title, description, location, salary });
+
+    if (!title || !description) {
+      return res.status(400).json({ error: 'Title and description are required' });
+    }
+
+    const jobs = await readJobsFile();
+    const newJob = {
+      id: jobs.length > 0 ? Math.max(...jobs.map(job => job.id)) + 1 : 1,
+      title,
+      description,
+      location,
+      salary,
+      createdAt: new Date().toISOString()
+    };
+
+    jobs.push(newJob);
+
     try {
-      const { title, description, location, salary } = req.body;
-      console.log('Incoming job data:', { title, description, location, salary });
-  
-      if (!title || !description) {
-        return res.status(400).json({ error: 'Title and description are required' });
-      }
-  
-      const jobs = await readJobsFile();
-      const newJob = {
-        id: jobs.length > 0 ? Math.max(...jobs.map(job => job.id)) + 1 : 1,
-        title,
-        description,
-        location,
-        salary,
-        createdAt: new Date().toISOString()
-      };
-  
-      jobs.push(newJob);
-  
-      try {
-        await writeJobsFile(jobs);
-        console.log('New job created:', newJob);
-        res.status(201).json(newJob);
-      } catch (error) {
-        console.error('Error writing jobs file:', error);
-        res.status(500).json({ error: 'Failed to create job' });
-      }
+      await writeJobsFile(jobs);
+      console.log('New job created:', newJob);
+      res.status(201).json(newJob);
     } catch (error) {
-      console.error('Error creating job:', error);
+      console.error('Error writing jobs file:', error);
       console.error('Error stack:', error.stack);
       res.status(500).json({ error: 'Failed to create job' });
     }
-  });
+  } catch (error) {
+    console.error('Error creating job:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ error: 'Failed to create job' });
+  }
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {

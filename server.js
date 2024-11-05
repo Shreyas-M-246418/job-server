@@ -89,7 +89,6 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs').promises;
 const path = require('path');
-const { Octokit } = require('@octokit/rest');
 require('dotenv').config();
 
 const app = express();
@@ -107,11 +106,6 @@ app.use(express.json());
 const GITHUB_OWNER = 'Shreyas-M-246418';
 const GITHUB_REPO = 'job-server';
 const GITHUB_ACCESS_TOKEN = process.env.GITHUB_ACCESS_TOKEN;
-
-// GitHub client
-const octokit = new Octokit({
-  auth: GITHUB_ACCESS_TOKEN
-});
 
 // Helper function to read/write jobs data
 const JOBS_FILE = path.join(__dirname, 'data', 'jobs.json');
@@ -137,6 +131,11 @@ async function writeJobsFile(jobs) {
 
 async function updateGitHubFile(filePath, content) {
   try {
+    const { Octokit } = await import('@octokit/rest');
+    const octokit = new Octokit({
+      auth: GITHUB_ACCESS_TOKEN
+    });
+
     const response = await octokit.repos.createOrUpdateFileContents({
       owner: GITHUB_OWNER,
       repo: GITHUB_REPO,

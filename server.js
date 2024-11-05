@@ -125,51 +125,50 @@ async function readJobsFile() {
 }
 
 async function writeJobsFile(jobs) {
-    try {
-      // Write the jobs data to the local jobs.json file
-      await fs.writeFile(JOBS_FILE, JSON.stringify(jobs, null, 2));
-      console.log('Jobs data written to local file.');
-  
-      // Update the jobs.json file on the GitHub repository
-      await updateGitHubFile('data/jobs.json', JSON.stringify(jobs, null, 2));
-      console.log('Jobs data updated in GitHub repository.');
-    } catch (error) {
-      console.error('Error writing jobs file:', error);
-      throw error;
-    }
-  }
-  
+  try {
+    // Write the jobs data to the local jobs.json file
+    await fs.writeFile(JOBS_FILE, JSON.stringify(jobs, null, 2));
+    console.log('Jobs data written to local file.');
 
-  async function updateGitHubFile(filePath, content) {
-    try {
-      const { Octokit } = await import('@octokit/rest');
-      const octokit = new Octokit({
-        auth: GITHUB_ACCESS_TOKEN
-      });
-  
-      // Get the current SHA of the file
-      const response = await octokit.repos.getContent({
-        owner: GITHUB_OWNER,
-        repo: GITHUB_REPO,
-        path: filePath
-      });
-  
-      // Update the file content
-      await octokit.repos.createOrUpdateFile({
-        owner: GITHUB_OWNER,
-        repo: GITHUB_REPO,
-        path: filePath,
-        message: 'Update jobs.json',
-        content: Buffer.from(content).toString('base64'),
-        sha: response.data.sha
-      });
-  
-      console.log('GitHub file updated:', filePath);
-    } catch (error) {
-      console.error('Error updating GitHub file:', error);
-      throw error;
-    }
+    // Update the jobs.json file on the GitHub repository
+    await updateGitHubFile('data/jobs.json', JSON.stringify(jobs, null, 2));
+    console.log('Jobs data updated in GitHub repository.');
+  } catch (error) {
+    console.error('Error writing jobs file:', error);
+    throw error;
   }
+}
+
+async function updateGitHubFile(filePath, content) {
+  try {
+    const { Octokit } = await import('@octokit/rest');
+    const octokit = new Octokit({
+      auth: GITHUB_ACCESS_TOKEN
+    });
+
+    // Get the current SHA of the file
+    const response = await octokit.repos.getContent({
+      owner: GITHUB_OWNER,
+      repo: GITHUB_REPO,
+      path: filePath
+    });
+
+    // Update the file content
+    await octokit.repos.createOrUpdateFile({
+      owner: GITHUB_OWNER,
+      repo: GITHUB_REPO,
+      path: filePath,
+      message: 'Update jobs.json',
+      content: Buffer.from(content).toString('base64'),
+      sha: response.data.sha
+    });
+
+    console.log('GitHub file updated:', filePath);
+  } catch (error) {
+    console.error('Error updating GitHub file:', error);
+    throw error;
+  }
+}
 
 // Routes
 app.get('/api/jobs', async (req, res) => {
@@ -200,8 +199,14 @@ app.post('/api/jobs', async (req, res) => {
     };
 
     jobs.push(newJob);
-    await writeJobsFile(jobs);
-    res.status(201).json(newJob);
+
+    try {
+      await writeJobsFile(jobs);
+      res.status(201).json(newJob);
+    } catch (error) {
+      console.error('Error writing jobs file:', error);
+      res.status(500).json({ error: 'Failed to create job' });
+    }
   } catch (error) {
     console.error('Error creating job:', error);
     res.status(500).json({ error: 'Failed to create job' });

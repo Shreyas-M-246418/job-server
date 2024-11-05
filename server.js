@@ -9,7 +9,7 @@ const port = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: 'https://job-portal-six-kappa.vercel.app',
+  origin: 'https://job-navy-six.vercel.app', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type']
 }));

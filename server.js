@@ -212,6 +212,7 @@ app.post('/api/jobs', async (req, res) => {
       }
     } catch (error) {
       console.error('Error creating job:', error);
+      console.error('Error stack:', error.stack);
       res.status(500).json({ error: 'Failed to create job' });
     }
   });

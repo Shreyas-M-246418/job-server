@@ -22,5 +22,13 @@
     "location": "Chennai",
     "salary": "$15000-$18000",
     "createdAt": "2024-11-05T21:23:23.039Z"
+  },
+  {
+    "id": 4,
+    "title": "Data scientist",
+    "description": "Solve complex problems and provide insights ",
+    "location": "Mumbai ",
+    "salary": "$5000",
+    "createdAt": "2024-11-06T02:57:57.605Z"
   }
 ]
